@@ -1,0 +1,53 @@
+
+many hashmap implementations are either "process local"
+(using memory references to access/update) or "process external"
+(using IPC standard communication/coordination mechanisms to access/update).
+
+hashmmap is a hash implementation with the memory backed by mmap'ed memory.
+this affords the speed of memory references for access/updates but also
+allows for on-host processes to share the hashmap.
+
+the hashmap can be mapped into a real file (for sharing between processes or
+between invocations) or into anonymous memory (which can still be shared
+between parent/children).
+
+if the hashmap is mapped to a real file, there is also resiliency with
+respect to process failure.  leveraging an update protocol for tracking
+entry updates, one can identify records that did not completely update
+and, on recovery, eliminate those.
+
+additionally, then the hashmap is mapped to a real file, there are auxillary
+structures that help in maintaining metrics on the hashmap use and with the
+replication of the hashmap to other hosts (for host resiliency/recovery).
+the hashmap file and the auxillary structures are all contained in a single
+directory.
+
+the package includes a utility daemon that will do the replication.
+
+examples of use
+===============
+kafka consumers need to track their consumption offset (to avoid duplication
+of receipt of records).  the standard solution is to write to a network
+service (often resilient) that records the offset.
+
+hashmmap can instead be used to track offsets by topic.
+and if host resiliency is needed, the replication component can be used
+to asynchronously replicate the offset states.
+
+-
+
+log file tracking: when processing/analyzing log files, one needs to track
+the position in the log file (so avoid duplicating analysis on restart)
+
+CARA (Canvass and Review Asynchronously), a multi-language log analysis
+framework, will leverage hashmmap to track its progress to log files.
+
+-
+
+a cache that can be shared between multiple processes on a single host
+
+-
+
+basically anything that uses an in-process hashmap can use hashmmap to make
+the hashmap "persistent" and accessible to other processes
+
