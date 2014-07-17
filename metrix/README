@@ -1,0 +1,19 @@
+
+a memory allocator for metrics.
+
+the memory is backed by a memory mapped file (so that external agents can
+cheaply poll the metrics w/o disturbing the application).
+
+no locks are used in reading - so it is up to the reader to check for
+"consistency" (or not)
+
+the file consists of two parts: a symbol table and the actual data.
+
+the data types supported:
+	- 32 bit integer
+	- 64 bit integer
+	- floats (4 bytes?)
+	- double (8 bytes?)
+	- long double (16 bytes?)
+	- strings?
+	- histograms?
